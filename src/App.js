@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import RootRoute from './components/root/RootRoute';
+import { useNavigate } from 'react-router-dom';
 
-function App() {
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  const logIn = () => setIsLoggedIn(true);
+
+  const logOut = async () => {
+    try {
+      const response = await fetch(process.env.REACT_APP_LOGOUT_URL || 'http://localhost:4001/api/users/logout', { // Use environment variable
+      method: 'GET',
+      credentials: 'include', // Important for cookies
+      });
+      console.log(response);
+
+      if (response.ok) {
+        setIsLoggedIn(false);
+        navigate('/login'); // Redirect to the login page after successful logout
+      } else {
+        alert('Logout failed. Try again.');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <RootRoute onLogin={logIn} onLogout={logOut} isLoggedIn={isLoggedIn} />
   );
-}
+};
 
 export default App;
